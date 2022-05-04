@@ -1,0 +1,46 @@
+#' Perform KEGG term enrichment
+#'
+#' @importFrom magrittr %>%
+#'
+#' @param contrast Character vector. Column names from the gene_count_matrix.
+#' @param prefix Character. Add prefix to some of the column names in the output
+#'
+#' @return Data frame of edgeR result
+#' @export
+
+
+run_edgeR <- function(
+  contrast,
+  prefix = ""
+){
+
+  ## Select the data
+  gene_names <- gene_count_matrix$gene_id
+  geneCounts <- as.matrix(gene_count_matrix[, contrast])
+  design_matrix <- data.frame(
+    Sample = contrast %>% as.factor(),
+    Genotype = contrast %>% strsplit(split = "_") %>% lapply(utils::head, 1) %>% unlist() %>% as.factor()
+  )
+  design <- stats::model.matrix(~design_matrix$Genotype)
+  rownames(design) <- design_matrix$Sample
+
+  dge <- edgeR::DGEList(counts = geneCounts, genes = gene_names, group = design_matrix$Genotype)
+  dge <- dge[edgeR::filterByExpr(dge), , keep.lib.sizes = FALSE]
+  ## Normalize to library size
+  dge <- edgeR::calcNormFactors(dge)
+  ## Dispersion
+  dge <- edgeR::estimateDisp(dge, design, robust=TRUE)
+
+  #edgeR::plotBCV(dge)
+  #edgeR::plotMDS.DGEList(dge)
+
+  fit <- edgeR::glmFit(dge, design)
+  lrt <- edgeR::glmLRT(fit)
+  edgeR_result <- edgeR::topTags(lrt, n = Inf)$table[, c("genes", "PValue", "FDR", "logFC")]
+  edgeR_result$genes <- edgeR_result$genes %>% strsplit(split = "\\|") %>% sapply(utils::head, 1)
+  colnames(edgeR_result) <- c("ID", paste0(prefix, "PValue"), paste0(prefix, "FDR"), paste0(prefix, "log2FC"))
+  return(edgeR_result)
+}
+
+
+
