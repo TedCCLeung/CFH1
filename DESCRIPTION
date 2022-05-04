@@ -26,3 +26,5 @@ Suggests:
     purrr,
     tibble,
     tidyr
+URL: https://github.com/TedCCLeung/CFH1
+BugReports: https://github.com/TedCCLeung/CFH1/issues
