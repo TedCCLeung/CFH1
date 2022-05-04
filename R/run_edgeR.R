@@ -10,12 +10,11 @@
 
 
 run_edgeR <- function(
-  contrast,
-  prefix = ""
+  contrast
 ){
 
   ## Select the data
-  gene_names <- gene_count_matrix$gene_id
+  gene_names <- gene_count_matrix$gene_id %>% strsplit(split = "\\|") %>% sapply(utils::head, 1)
   geneCounts <- as.matrix(gene_count_matrix[, contrast])
   design_matrix <- data.frame(
     Sample = contrast %>% as.factor(),
@@ -37,8 +36,7 @@ run_edgeR <- function(
   fit <- edgeR::glmFit(dge, design)
   lrt <- edgeR::glmLRT(fit)
   edgeR_result <- edgeR::topTags(lrt, n = Inf)$table[, c("genes", "PValue", "FDR", "logFC")]
-  edgeR_result$genes <- edgeR_result$genes %>% strsplit(split = "\\|") %>% sapply(utils::head, 1)
-  colnames(edgeR_result) <- c("ID", paste0(prefix, "PValue"), paste0(prefix, "FDR"), paste0(prefix, "log2FC"))
+  colnames(edgeR_result) <- c("ID", "PValue", "FDR", "logFC")
   return(edgeR_result)
 }
 
