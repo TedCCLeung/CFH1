@@ -17,9 +17,11 @@ run_edgeR <- function(
   gene_names <- gene_count_matrix$gene_id %>% strsplit(split = "\\|") %>% sapply(utils::head, 1)
   geneCounts <- as.matrix(gene_count_matrix[, contrast])
   design_matrix <- data.frame(
-    Sample = contrast %>% as.factor(),
-    Genotype = contrast %>% strsplit(split = "_") %>% lapply(utils::head, 1) %>% unlist() %>% as.factor()
+    Sample = contrast,
+    Genotype = contrast %>% strsplit(split = "_") %>% lapply(utils::head, 1) %>% unlist() %>% factor(
+      levels = contrast %>% strsplit(split = "_") %>% lapply(utils::head, 1) %>% unlist() %>% unique())
   )
+
   design <- stats::model.matrix(~design_matrix$Genotype)
   rownames(design) <- design_matrix$Sample
 
@@ -37,6 +39,7 @@ run_edgeR <- function(
   lrt <- edgeR::glmLRT(fit)
   edgeR_result <- edgeR::topTags(lrt, n = Inf)$table[, c("genes", "PValue", "FDR", "logFC")]
   colnames(edgeR_result) <- c("ID", "PValue", "FDR", "logFC")
+  edgeR_result$logFC <- edgeR_result$logFC*-1
   return(edgeR_result)
 }
 

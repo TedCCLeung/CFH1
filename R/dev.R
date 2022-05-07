@@ -13,6 +13,8 @@
 # usethis::use_package("org.At.tair.db", type = "Suggests")
 # usethis::use_package("AnnotationDbi", type = "Suggests")
 # usethis::use_package("ComplexHeatmap", type = "Suggests")
+# usethis::use_package("apcluster", type = "Suggests")
+
 
 ##Tidyverse -----------------------------------
 # usethis::use_package("ggplot2", type = "Suggests")

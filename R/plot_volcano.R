@@ -21,6 +21,7 @@ plot_volcano <- function(
   plot <- ggplot2::ggplot(df_plot, ggplot2::aes_string(x = "logFC", y = "FDR")) +
     ggplot2::geom_point(mapping = ggplot2::aes_string(fill = "DE", color = "DE"), size = 0.5, shape = 20, alpha = 0.8) +
     ggplot2::facet_wrap(~contrast, nrow = 1) +
+    ggplot2::xlim(-10, 10) +
     ggplot2::ylab("-log10(FDR)") +
     #ggplot2::scale_fill_manual(values = c("FAIL" = "#FFFFFF", "PASS" = "#FFFFFF")) +
     ggplot2::scale_color_manual(values = c("FAIL" = "#000000", "PASS" = "#FF0000")) +
